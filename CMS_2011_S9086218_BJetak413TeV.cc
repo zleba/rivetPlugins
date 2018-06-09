@@ -7,6 +7,8 @@
 #include "Rivet/Projections/MissingMomentum.hh"
 #include "Rivet/Projections/VetoedFinalState.hh"
 
+#include <utility>
+
 std::string SF(const char*str, int i)
 {
     char buff[100];
@@ -14,8 +16,72 @@ std::string SF(const char*str, int i)
     return std::string(buff);
 }
 
-
 namespace Rivet {
+
+
+std::pair<int,int> getNbNbBarLocal(int pid)
+{
+    int nB = 0, nBbar = 0;
+    if (PID::isHadron(pid) && PID::hasBottom(pid))  {
+        if(PID::isMeson(pid)) {
+            int q1 = (abs(pid) /10) % 10;
+            int q2 = (abs(pid) /100) % 10;
+            //cout << "AA "<<pid<<" " << q1  << " "<< q2 << " "<< endl;
+            if(q1 == 5 && q2 == 5) { //cout << "di-bottom" << endl; 
+                ++nB; ++nBbar;
+            }
+            else {
+                if (pid > 0) ++nBbar; //antiB
+                else        ++nB; //B
+            }
+        }
+        else if(PID::isBaryon(pid)) {
+            if (pid > 0) ++nBbar; //antiB
+            else ++nB; //B
+        }
+
+    }
+    return std::make_pair(nB, nBbar);
+}
+
+
+
+
+
+
+
+std::pair<int,int> getNbNbBar(const Jet &jet)
+{
+    int i = 0;
+    int nB = 0, nBbar = 0;
+    if (jet.bTagged() ) {
+        for( const Particle &p: jet.particles()) {
+            if (PID::isHadron(p.pdgId()) && PID::hasBottom(p.pdgId())) {
+                auto var = getNbNbBarLocal(p.pdgId());
+                nB    += var.first;
+                nBbar += var.second;
+                //cout << "RR "<< ++i <<" "<< p.pdgId() << endl;
+            }
+
+            HepMC::GenVertex* gv = p.genParticle()->production_vertex();
+            if (gv) {
+                for (const GenParticle* pi  : Rivet::particles(gv, HepMC::ancestors)) {
+                    auto var = getNbNbBarLocal(pi->pdg_id());
+                    nB    += var.first;
+                    nBbar += var.second;
+                }
+            }
+
+        }
+    }
+    return std::make_pair(nB, nBbar);
+
+}
+
+
+
+
+
 
     // This analysis is a derived from the class Analysis:
     class CMS_2011_S9086218_BJetak413TeV : public Analysis {
@@ -152,17 +218,14 @@ namespace Rivet {
 
                   const MissingMomentum& mmcalo = applyProjection<MissingMomentum>(event, "CaloMET");*/
 
-                foreach (const Jet& j, jetsAK4) {
+                int jId = 0;
+                for (const Jet& j : jetsAK4) {
 
                     bool btag=false;
                     bool btagleading=false;
 
-                    int i = 0;
-                    if(j.containsBottom() ) {
-                        foreach( const GenParticle *p, j.constituents()) {
-                            cout << "RR "<< ++i <<" "<< p->pdg_id() << endl;
-                        }
-                    }
+
+
                     /*foreach (const GenParticle* p, particles(event.genEvent())) {
 
                       int aid = abs(p->pdg_id());
@@ -191,13 +254,21 @@ namespace Rivet {
                       }
                       }*/
 
-                    foreach (const Particle& b, bHadrons){
+                    for (const Particle& b: bHadrons) {
                         if (deltaR(j, b) < 0.4) { btag = true; break; }
                     }
 
+                    if(j.bTagged()) {
+                        int nB, nBbar;
+                        tie(nB, nBbar) = getNbNbBar(j);
+                        if(nB == 0 && nBbar == 0)
+                            cout << "Jet " << jId++ << " " << j.particles().size() << " "<< j.bTagged()<< " "<< j.containsBottom() <<" : "<< btag << " = " << nB <<" "<< nBbar << endl;
+                    }
+
+
                     if(btagleadingentry){
                         btagleadingentry=0;
-                        foreach (const Particle& b, bHadrons){
+                        for (const Particle& b : bHadrons) {
                             if (deltaR(j, b) < 0.4) { btagleading = true; break; }
                         }	  
                     }

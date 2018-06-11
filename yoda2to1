@@ -1,0 +1,14 @@
+file=$1
+fileT=$TMP/RivetT.yoda
+fileOut=$2
+
+sed 's/YODA_HISTO1D_V2/YODA_HISTO1D/g' $file > $fileT
+sed 's/Path: /Path=/g'        $fileT > $fileOut
+sed 's/ScaledBy: /ScaledBy=/g' $fileOut > $fileT
+sed 's/Title: /Title=/g' $fileT > $fileOut
+sed 's/Type: /Type=/g' $fileOut > $fileT
+sed 's/XLabel: /Xlabel=/g' $fileT > $fileOut
+sed 's/YLabel: /Ylabel=/g' $fileOut > $fileT
+sed 's/YODA_COUNTER_V2/YODA_COUNTER/g' $fileT > $fileOut
+sed 's/YODA_SCATTER1D_V2/YODA_SCATTER1D/g' $fileOut > $fileT
+mv $fileT $fileOut

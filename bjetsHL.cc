@@ -115,19 +115,15 @@ std::pair<int,int> getNbNbBar(const Jet &jet)
 
                 //addProjection(HeavyHadrons(Cuts::abseta < 3.5 && Cuts::pT > 1*GeV), "BHadrons");
 
-                double Ptbinning[] = {18, 21, 24, 28, 32, 37, 43, 49, 56, 64, 74, 84,97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468,507, 548, 592, 638, 686, 737, 790, 846, 905, 967,1032, 1101, 1172, 1248, 1327, 1410, 1497, 1588, 1684, 1784, 1890, 2000,2116, 2238, 2366, 2500, 2640, 2787, 2941, 3103, 3273, 3450, 3637, 3832,4037, 4252, 4477, 4713, 4961, 5220, 5492, 5777, 6076, 6389, 6717, 7000};
+                std::vector<double> PtHistobinning = {18, 21, 24, 28, 32, 37, 43, 49, 56, 64, 74, 84,97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468,507, 548, 592, 638, 686, 737, 790, 846, 905, 967,1032, 1101, 1172, 1248, 1327, 1410, 1497, 1588, 1684, 1784, 1890, 2000,2116, 2238, 2366, 2500, 2640, 2787, 2941, 3103, 3273, 3450, 3637, 3832,4037, 4252, 4477, 4713, 4961, 5220, 5492, 5777, 6076, 6389, 6717, 7000};
 
-                std::vector<double> PtHistobinning;//(Ptbinning, );
 
-                for(int i=0;i< sizeof(Ptbinning)/sizeof(Ptbinning[0]);i++){
-                    PtHistobinning.push_back(Ptbinning[i]);
-                }
 
                 // Book histograms:
 
-                double yBins[] = {0., 0.5, 1, 1.5, 2, 2.4};
+                vector<double> yBins = {0., 0.5, 1, 1.5, 2, 2.4};
 
-                for(int i = 0; i < 5; ++i) {
+                for(int i = 0; i < yBins.size()-1; ++i) {
                     _hist_allInclusive.addHistogram(yBins[i], yBins[i+1],
                                    bookHisto1D(SF("d0%d-x01-y01",i+1), PtHistobinning));
                     _hist_bInclusive.addHistogram(yBins[i], yBins[i+1],

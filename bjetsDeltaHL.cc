@@ -18,75 +18,17 @@ std::string SF(const char*str, int i)
 
 namespace Rivet {
 
-
-std::pair<int,int> getNbNbBarLocal(int pid)
-{
-    int nB = 0, nBbar = 0;
-    if (PID::isHadron(pid) && PID::hasBottom(pid))  {
-        if(PID::isMeson(pid)) {
-            int q1 = (abs(pid) /10) % 10;
-            int q2 = (abs(pid) /100) % 10;
-            //cout << "AA "<<pid<<" " << q1  << " "<< q2 << " "<< endl;
-            if(q1 == 5 && q2 == 5) { //cout << "di-bottom" << endl; 
-                ++nB; ++nBbar;
-            }
-            else {
-                if (pid > 0) ++nBbar; //antiB
-                else        ++nB; //B
-            }
-        }
-        else if(PID::isBaryon(pid)) {
-            if (pid > 0) ++nBbar; //antiB
-            else ++nB; //B
-        }
-
-    }
-    return std::make_pair(nB, nBbar);
-}
-
-
-
-
-
-
-
-std::pair<int,int> getNbNbBar(const Jet &jet)
-{
-    int i = 0;
-    int nB = 0, nBbar = 0;
-    if (jet.bTagged() ) {
-        for( const Particle &p: jet.particles()) {
-            if (PID::isHadron(p.pdgId()) && PID::hasBottom(p.pdgId())) {
-                auto var = getNbNbBarLocal(p.pdgId());
-                nB    += var.first;
-                nBbar += var.second;
-                //cout << "RR "<< ++i <<" "<< p.pdgId() << endl;
-            }
-
-            HepMC::GenVertex* gv = p.genParticle()->production_vertex();
-            if (gv) {
-                for (const GenParticle* pi  : Rivet::particles(gv, HepMC::ancestors)) {
-                    auto var = getNbNbBarLocal(pi->pdg_id());
-                    nB    += var.first;
-                    nBbar += var.second;
-                }
-            }
-
-        }
-    }
-    return std::make_pair(nB, nBbar);
-
-}
-
-
+    const vector<double> PtBins = {300, 500, 700, 900, 1100, 1300, 1500, 1700};
 
     // This analysis is a derived from the class Analysis:
-    class bjetsHL : public Analysis {
+    class bjetsDeltaHL : public Analysis {
 
 
         private:
-            BinnedHistogram<double> _hist_allInclusive;
-            BinnedHistogram<double> _hist_bInclusive, _hist_bbBarInclusive, _hist_nobInclusive;
+
+            BinnedHistogram<double> _hist_DeltaPhiAA, _hist_DeltaPhiBA, _hist_DeltaPhiBB;
+            BinnedHistogram<double> _hist_DeltaYAA, _hist_DeltaYBA, _hist_DeltaYBB;
+            BinnedHistogram<double> _hist_PhiStarAA, _hist_PhiStarBA, _hist_PhiStarBB;
 
 
         public:
@@ -94,8 +36,8 @@ std::pair<int,int> getNbNbBar(const Jet &jet)
             // @{
 
             // Constructor
-            bjetsHL()
-                : Analysis("bjetsHL") {
+            bjetsDeltaHL()
+                : Analysis("bjetsDeltaHL") {
                 }
 
             // Book histograms and initialize projections:
@@ -115,62 +57,90 @@ std::pair<int,int> getNbNbBar(const Jet &jet)
 
                 //addProjection(HeavyHadrons(Cuts::abseta < 3.5 && Cuts::pT > 1*GeV), "BHadrons");
 
-                double Ptbinning[] = {18, 21, 24, 28, 32, 37, 43, 49, 56, 64, 74, 84,97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468,507, 548, 592, 638, 686, 737, 790, 846, 905, 967,1032, 1101, 1172, 1248, 1327, 1410, 1497, 1588, 1684, 1784, 1890, 2000,2116, 2238, 2366, 2500, 2640, 2787, 2941, 3103, 3273, 3450, 3637, 3832,4037, 4252, 4477, 4713, 4961, 5220, 5492, 5777, 6076, 6389, 6717, 7000};
 
-                std::vector<double> PtHistobinning;//(Ptbinning, );
 
-                for(int i=0;i< sizeof(Ptbinning)/sizeof(Ptbinning[0]);i++){
-                    PtHistobinning.push_back(Ptbinning[i]);
-                }
+                for(unsigned i = 0; i < PtBins.size()-1; ++i) {
+                    _hist_DeltaPhiAA.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x01-y01",i+1), 20, 0, M_PI));
+                    _hist_DeltaPhiBA.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x02-y01",i+1), 20, 0, M_PI));
+                    _hist_DeltaPhiBB.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x03-y01",i+1), 20, 0, M_PI));
 
-                // Book histograms:
+                    _hist_DeltaYAA.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x01-y02",i+1), 20, 0, 5));
+                    _hist_DeltaYBA.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x02-y02",i+1), 20, 0, 5));
+                    _hist_DeltaYBB.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x03-y02",i+1), 20, 0, 5));
 
-                double yBins[] = {0., 0.5, 1, 1.5, 2, 2.4};
-
-                for(int i = 0; i < 5; ++i) {
-                    _hist_allInclusive.addHistogram(yBins[i], yBins[i+1],
-                                   bookHisto1D(SF("d0%d-x01-y01",i+1), PtHistobinning));
-                    _hist_bInclusive.addHistogram(yBins[i], yBins[i+1],
-                                   bookHisto1D(SF("d0%d-x01-y02",i+1), PtHistobinning));
-                    _hist_bbBarInclusive.addHistogram(yBins[i], yBins[i+1],
-                                   bookHisto1D(SF("d0%d-x01-y03",i+1), PtHistobinning));
-                    _hist_nobInclusive.addHistogram(yBins[i], yBins[i+1],
-                                   bookHisto1D(SF("d0%d-x01-y04",i+1), PtHistobinning));
+                    _hist_PhiStarAA.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x01-y02",i+1), 20, 0, 1));
+                    _hist_PhiStarBA.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x02-y02",i+1), 20, 0, 1));
+                    _hist_PhiStarBB.addHistogram(PtBins[i], PtBins[i+1],
+                                   bookHisto1D(SF("d0%d-x03-y02",i+1), 20, 0, 1));
 
                 }
 
             }
+
+
+            double phiStar(const Jet &lminusJ, const Jet &lplusJ)
+            {
+                const FourMomentum &lminus = lminusJ.momentum();
+                const FourMomentum &lplus = lplusJ.momentum();
+                const double phi_acop = M_PI - deltaPhi(lminus, lplus);
+                const double costhetastar = tanh( 0.5 * (lminus.eta() - lplus.eta()) );
+                const double sin2thetastar = (costhetastar > 1) ? 0.0 : (1.0 - sqr(costhetastar));
+                const double phistar = tan(phi_acop/2) * sqrt(sin2thetastar);
+                return phistar;
+            }
+
 
             // Analysis
             void analyze(const Event &event) {
 
                 const double weight = event.weight();      
                 const FastJets &fjAK4 = applyProjection<FastJets>(event,"JetsAK4");      
-                const Jets& jetsAK4 = fjAK4.jetsByPt(Cuts::ptIn(18*GeV, 7000.0*GeV) && Cuts::absrap < 4.7);
+                const Jets& jetsAK4 = fjAK4.jetsByPt(Cuts::ptIn(100*GeV, 7000.0*GeV) && Cuts::absrap < 2.4);
 
 
+                if(jetsAK4.size() < 2) return;
+                auto jet1 = jetsAK4[0];
+                auto jet2 = jetsAK4[1];
 
-                int jId = 0;
-                for (const Jet& j : jetsAK4) {
+                for(unsigned i = 0; i < PtBins.size()-1; ++i) {
+                    
+                    if(jet1.pt() < PtBins[i] || jet1.pt() > PtBins[i+1]) continue;
+                    //if(jet2.pt() < PtBins[i] || jet2.pt() > PtBins[i+1]) continue;
 
-                    _hist_allInclusive.fill(fabs(j.momentum().rapidity()), j.momentum().pT(), weight);
 
-                    if(j.bTagged()) {
-                        _hist_bInclusive.fill(fabs(j.momentum().rapidity()), j.momentum().pT(), weight);
+                    double dPhi    = deltaPhi(jet1, jet2);
+                    double dY      = deltaRap(jet1, jet2);
+                    double PhiStar = phiStar (jet1, jet2);
 
-                        int nB, nBbar;
-                        tie(nB, nBbar) = getNbNbBar(j);
+                    cout <<"pars " << dPhi << " " << dY << " "<< PhiStar << endl;
 
-                        if(nB != 0 && nBbar != 0)
-                            _hist_bbBarInclusive.fill(fabs(j.momentum().rapidity()), j.momentum().pT(), weight);
-                        else if(nB == 0 && nBbar == 0)
-                            _hist_nobInclusive.fill(fabs(j.momentum().rapidity()), j.momentum().pT(), weight);
+                    //Any
+                    _hist_DeltaPhiAA.fill(jet1.pt(), dPhi, weight);
+                    _hist_DeltaYAA.  fill(jet1.pt(),   dY, weight);
+                    _hist_PhiStarAA. fill(jet1.pt(),  PhiStar, weight);
 
-                        //if(nB == 0 && nBbar == 0)
-                            //cout << "Jet " << jId++ << " " << j.particles().size() << " "<< j.bTagged()<< " "<< j.containsBottom() <<" : "<<  " = " << nB <<" "<< nBbar << endl;
+                    if(jet1.bTagged() && jet2.bTagged()) {
+                        //Both b-jets
+                        _hist_DeltaPhiBB.fill(jet1.pt(), dPhi, weight);
+                        _hist_DeltaYBB.  fill(jet1.pt(),   dY, weight);
+                        _hist_PhiStarBB. fill(jet1.pt(),  PhiStar, weight);
                     }
-
+                    else if(jet1.bTagged() || jet2.bTagged()) {
+                        //One b-jet
+                        _hist_DeltaPhiBA.fill(jet1.pt(), dPhi, weight);
+                        _hist_DeltaYBA.  fill(jet1.pt(),   dY, weight);
+                        _hist_PhiStarBA. fill(jet1.pt(),  PhiStar, weight);
+                    }
                 }
+
 
             }
 
@@ -178,10 +148,19 @@ std::pair<int,int> getNbNbBar(const Jet &jet)
             void finalize() {
                 cout<<"cross Section: "<<crossSection()<<endl;
 
-                _hist_allInclusive.scale(crossSection()/sumOfWeights()/2, this);
-                _hist_bInclusive.scale(crossSection()/sumOfWeights()/2, this);
-                _hist_bbBarInclusive.scale(crossSection()/sumOfWeights()/2, this);
-                _hist_nobInclusive.scale(crossSection()/sumOfWeights()/2, this);
+                _hist_DeltaPhiAA.scale(crossSection()/sumOfWeights(), this);
+                _hist_DeltaPhiBA.scale(crossSection()/sumOfWeights(), this);
+                _hist_DeltaPhiBB.scale(crossSection()/sumOfWeights(), this);
+                _hist_DeltaYAA.scale(crossSection()/sumOfWeights(), this);
+                _hist_DeltaYBA.scale(crossSection()/sumOfWeights(), this);
+                _hist_DeltaYBB.scale(crossSection()/sumOfWeights(), this);
+                _hist_PhiStarAA.scale(crossSection()/sumOfWeights(), this);
+                _hist_PhiStarBA.scale(crossSection()/sumOfWeights(), this);
+                _hist_PhiStarBB.scale(crossSection()/sumOfWeights(), this);
+
+
+
+
             }
             //@}
 
@@ -189,6 +168,6 @@ std::pair<int,int> getNbNbBar(const Jet &jet)
     };
 
     // This global object acts as a hook for the plugin system. 
-    AnalysisBuilder<bjetsHL> plugin_bjetsHL;
+    AnalysisBuilder<bjetsDeltaHL> plugin_bjetsDeltaHL;
 
 }

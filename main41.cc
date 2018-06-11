@@ -30,13 +30,13 @@ int main(int argc, char **argv) {
 
   // Generator. Process selection. LHC initialization. Histogram.
   Pythia pythia;
-  pythia.readString("Beams:eCM = 13000.");
+  pythia.readString("Beams:eCM = 14000.");
   //pythia.readString("PDF:pSet = LHAPDF5:NNPDF31_lo_as_0130");
   pythia.readString("Random:setSeed = on");
   pythia.readString("Random:seed = 1"+string(argv[2]));
 
   pythia.readString("HardQCD:all = on");
-  pythia.readString("PhaseSpace:pTHatMin = 1000.");
+  pythia.readString("PhaseSpace:pTHatMin = 100.");
   pythia.readString("PhaseSpace:bias2Selection = on");
   pythia.readString("PhaseSpace:bias2SelectionPow = 5");
   pythia.readString("PartonLevel:MPI = off");
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   //Hist mult("charged multiplicity", 100, -0.5, 799.5);
 
   // Begin event loop. Generate event. Skip if error.
-  for (int iEvent = 0; iEvent < 40; ++iEvent) {
+  for (int iEvent = 0; iEvent < 35000; ++iEvent) {
     if (!pythia.next()) continue;
 
     //for(int i = 0; i <  pythia.info.nWeights(); ++i)

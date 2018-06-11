@@ -9,7 +9,7 @@ myDir = $ENV(PWD)
 #+PreCmd        = "tree"
 #+PreArguments  = "-o tree_before.$(Cluster).$(Process).txt"
 
-getenv = False
+getenv = True
 
 executable          =  run.sh
 arguments           = "$(Process)"
@@ -41,8 +41,8 @@ log                 = $(myDir)/logs/$(Process).log
 # if not set, default is 3 hours
 # longer requested job run times get more hit in the fairshare calculation
 #
-+RequestRuntime     = 1800
++RequestRuntime     = 2500
 #
 #
 ##########################
-queue 300
+queue 500

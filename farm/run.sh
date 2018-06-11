@@ -1,16 +1,19 @@
 #!/bin/bash
-address=/nfs/dust/cms/user/zlebcr/powheg/armando/pythia/pythiaLocal/share/Pythia8/examples
+address=$PWD/../
+#/nfs/dust/cms/user/zlebcr/powheg/armando/pythia/pythiaLocal/share/Pythia8/examples
 cd $TMP
 echo $PWD
 
 
-source /nfs/dust/cms/user/zlebcr/powheg/armando/setup.sh
+source $address/setup62.sh
 fifo="hepmc${1}.fifo"
 mkfifo $fifo
 
-$address/main41 $fifo $1  &
-ln -s $address/RivetBjetsHL.so
-rivet --pwd -a CMS_2011_S9086218_BJetak413TeV $fifo
+cp $address/RivetbjetsHL.so .
+cp  $address/main41 .
 
-cp Rivet.yoda  $address/farmnew/histos/Rivet${1}.yoda
+./main41 $fifo $1  &
+rivet --pwd -a bjetsHL $fifo
+
+cp Rivet.yoda  $address/farm/histos/Rivet${1}.yoda
 rm $fifo

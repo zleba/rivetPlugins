@@ -75,11 +75,11 @@ namespace Rivet {
                                    bookHisto1D(SF("d0%d-x03-y02",i+1), 20, 0, 5));
 
                     _hist_PhiStarAA.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x01-y02",i+1), 20, 0, 1));
+                                   bookHisto1D(SF("d0%d-x01-y03",i+1), 40, 0, 1));
                     _hist_PhiStarBA.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x02-y02",i+1), 20, 0, 1));
+                                   bookHisto1D(SF("d0%d-x02-y03",i+1), 40, 0, 1));
                     _hist_PhiStarBB.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x03-y02",i+1), 20, 0, 1));
+                                   bookHisto1D(SF("d0%d-x03-y03",i+1), 40, 0, 1));
 
                 }
 
@@ -120,7 +120,7 @@ namespace Rivet {
                     double dY      = deltaRap(jet1, jet2);
                     double PhiStar = phiStar (jet1, jet2);
 
-                    cout <<"pars " << dPhi << " " << dY << " "<< PhiStar << endl;
+                    //cout <<"pars " << dPhi << " " << dY << " "<< PhiStar << endl;
 
                     //Any
                     _hist_DeltaPhiAA.fill(jet1.pt(), dPhi, weight);

@@ -58,6 +58,15 @@ namespace Rivet {
                 //addProjection(HeavyHadrons(Cuts::abseta < 3.5 && Cuts::pT > 1*GeV), "BHadrons");
 
 
+                //Calculate phiStarBins
+                double phiSminL = log(1e-3);
+                double phiSmaxL = log(1);
+                const int N = 30;
+                vector<double> phiBins;
+                for(int i = 0; i <= N; ++i)
+                    phiBins.push_back(exp(phiSminL + (phiSmaxL-phiSminL)/N));
+
+
 
                 for(unsigned i = 0; i < PtBins.size()-1; ++i) {
                     _hist_DeltaPhiAA.addHistogram(PtBins[i], PtBins[i+1],
@@ -68,18 +77,18 @@ namespace Rivet {
                                    bookHisto1D(SF("d0%d-x03-y01",i+1), 20, 0, M_PI));
 
                     _hist_DeltaYAA.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x01-y02",i+1), 20, 0, 5));
+                                   bookHisto1D(SF("d0%d-x01-y02",i+1), 20, 0, 4.8));
                     _hist_DeltaYBA.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x02-y02",i+1), 20, 0, 5));
+                                   bookHisto1D(SF("d0%d-x02-y02",i+1), 20, 0, 4.8));
                     _hist_DeltaYBB.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x03-y02",i+1), 20, 0, 5));
+                                   bookHisto1D(SF("d0%d-x03-y02",i+1), 20, 0, 4.8));
 
                     _hist_PhiStarAA.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x01-y03",i+1), 40, 0, 1));
+                                   bookHisto1D(SF("d0%d-x01-y03",i+1),  phiBins));
                     _hist_PhiStarBA.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x02-y03",i+1), 40, 0, 1));
+                                   bookHisto1D(SF("d0%d-x02-y03",i+1),  phiBins));
                     _hist_PhiStarBB.addHistogram(PtBins[i], PtBins[i+1],
-                                   bookHisto1D(SF("d0%d-x03-y03",i+1), 40, 0, 1));
+                                   bookHisto1D(SF("d0%d-x03-y03",i+1),  phiBins));
 
                 }
 

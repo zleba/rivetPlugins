@@ -1,0 +1,79 @@
+#! /usr/bin/env python
+
+"""\
+%prog yodafile [rootfile]
+
+Convert a YODA data file to the ROOT data format.
+"""
+
+import yoda, os, sys, optparse
+from yoda.script_helpers import parse_x2y_args, filter_aos
+
+parser = optparse.OptionParser(usage=__doc__)
+parser.add_option("-m", "--match", dest="MATCH", metavar="PATT", default=None,
+                  help="only write out histograms whose path matches this regex")
+parser.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
+                  help="exclude histograms whose path matches this regex")
+parser.add_option("-g", "--as-graphs", dest="AS_GRAPHS", action="store_true", default=False,
+                  help="convert to ROOT TGraphs rather than native types")
+
+opts, args = parser.parse_args()
+in_out = parse_x2y_args(args, ".yoda", ".root")
+if not in_out:
+    sys.stderr.write("You must specify the YODA and ROOT file names\n")
+    sys.exit(1)
+
+import ROOT
+from math import sqrt
+#import numpy as np
+for i, o in in_out:
+    of = ROOT.TFile(o, "recreate")
+    analysisobjects = yoda.readYODA(i)
+    filter_aos(analysisobjects, opts.MATCH, opts.UNMATCH)
+
+    rootobjects = []
+    for obj in analysisobjects:
+        print obj
+        if analysisobjects[obj].__class__.__name__ != 'Histo1D':
+            continue
+
+        binsMy = ROOT.vector('double')()
+        for b in analysisobjects[obj].bins:
+            binsMy.push_back(b.xMin)
+        binsMy.push_back(analysisobjects[obj].bins[-1].xMax)
+
+        h = ROOT.TH1D(obj.replace('-','_'), obj, binsMy.size()-1, binsMy.data())
+        for i, b in enumerate(analysisobjects[obj].bins):
+            err = 0
+            if b.sumW > 0:
+                err = sqrt(b.sumW2) / b.sumW
+
+            h.SetBinContent(i+1, b.height)
+            h.SetBinError(i+1, b.height * err)
+
+            #print b.xMin, b.xMax, b.height, b.area, b.sumW, b.sumW2 
+        #of.WriteTObject(h)
+        rootobjects.append(h)
+
+    #print 'Closing file'
+    #of.Close()
+    #continue;
+    #rootobjects = [yoda.root.to_root(ao, asgraph=opts.AS_GRAPHS) for ao in analysisobjects.values()]
+
+    ## Protect against "/" in the histogram name, which ROOT does not like
+    for obj in rootobjects:
+        ## It's possible for the ROOT objects to be null, if conversion failed
+        if obj is None:
+            continue
+        ## Split the name on "/" directory separators
+        parts = obj.GetName().split("/")
+        ## Walk down dir tree, making it as we go
+        d = of
+        for part in parts[:-1]:
+            subdir = d.GetDirectory(part)
+            if not subdir:
+                subdir = d.mkdir(part)
+            d = subdir
+        ## Write the histo into the leaf dir
+        d.WriteTObject(obj, parts[-1])
+    of.Close()

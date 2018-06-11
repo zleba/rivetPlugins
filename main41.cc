@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   //Hist mult("charged multiplicity", 100, -0.5, 799.5);
 
   // Begin event loop. Generate event. Skip if error.
-  for (int iEvent = 0; iEvent < 15000; ++iEvent) {
+  for (int iEvent = 0; iEvent < 50000; ++iEvent) {
     if (!pythia.next()) continue;
 
     //for(int i = 0; i <  pythia.info.nWeights(); ++i)

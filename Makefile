@@ -13,8 +13,8 @@ main41: main41.cc
      -L${hepMClib} -Wl,-rpath,${hepMClib} -lHepMC
 
 
-bjetsHL: bjetsHL.cc
-	rivet-buildplugin Rivet$@.so $<
+RivetbjetsHL.so: bjetsHL.cc
+	rivet-buildplugin $@ $<
 
-bjetsDeltaHL: bjetsDeltaHL.cc
-	rivet-buildplugin Rivet$@.so $<
+RivetbjetsDeltaHL.so: bjetsDeltaHL.cc
+	rivet-buildplugin $@ $<

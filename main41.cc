@@ -20,7 +20,10 @@ using namespace std;
 using namespace Pythia8;
 
 int main(int argc, char **argv) {
-    assert(argc == 3);
+    if(argc != 3) {
+        cout << "please provide output HepMC file name + seed as arguments" << endl;
+        assert(0);
+    }
 
   // Interface for conversion from Pythia8::Event to HepMC event.
   HepMC::Pythia8ToHepMC ToHepMC;
@@ -30,16 +33,17 @@ int main(int argc, char **argv) {
 
   // Generator. Process selection. LHC initialization. Histogram.
   Pythia pythia;
-  pythia.readString("Beams:eCM = 14000.");
+  pythia.readFile("main41.cmnd");
+  //pythia.readString("Beams:eCM = 14000.");
   //pythia.readString("PDF:pSet = LHAPDF5:NNPDF31_lo_as_0130");
   pythia.readString("Random:setSeed = on");
   pythia.readString("Random:seed = 1"+string(argv[2]));
 
-  pythia.readString("HardQCD:all = on");
-  pythia.readString("PhaseSpace:pTHatMin = 100.");
-  pythia.readString("PhaseSpace:bias2Selection = on");
-  pythia.readString("PhaseSpace:bias2SelectionPow = 5");
-  pythia.readString("PartonLevel:MPI = off");
+  //pythia.readString("HardQCD:all = on");
+  //pythia.readString("PhaseSpace:pTHatMin = 100.");
+  //pythia.readString("PhaseSpace:bias2Selection = on");
+  //pythia.readString("PhaseSpace:bias2SelectionPow = 5");
+  //pythia.readString("PartonLevel:MPI = off");
   //pythia.readString("UncertaintyBands:doVariations = on");
   //pythia.readString("UncertaintyBands:List = { alphaShi fsr:muRfac=0.5 isr:muRfac=0.5, alphaSlo fsr:muRfac=2.0 isr:muRfac=2.0, hardHi fsr:cNS=2.0 isr:cNS=2.0, hardLo fsr:cNS=-2.0 isr:cNS=-2.0 }");
 

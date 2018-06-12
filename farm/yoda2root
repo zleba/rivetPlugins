@@ -48,8 +48,8 @@ for i, o in in_out:
             if b.sumW > 0:
                 err = sqrt(b.sumW2) / b.sumW
 
-            h.SetBinContent(i+1, b.height)
-            h.SetBinError(i+1, b.height * err)
+            h.SetBinContent(i+1, b.sumW)
+            h.SetBinError(i+1, b.sumW * err)
 
             #print b.xMin, b.xMax, b.height, b.area, b.sumW, b.sumW2 
         #of.WriteTObject(h)

@@ -64,7 +64,7 @@ namespace Rivet {
                 const int N = 30;
                 vector<double> phiBins;
                 for(int i = 0; i <= N; ++i)
-                    phiBins.push_back(exp(phiSminL + (phiSmaxL-phiSminL)/N));
+                    phiBins.push_back(exp(phiSminL + i*(phiSmaxL-phiSminL)/N));
 
 
 

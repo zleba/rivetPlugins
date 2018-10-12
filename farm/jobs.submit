@@ -9,7 +9,7 @@
 #+PreCmd        = "tree"
 #+PreArguments  = "-o tree_before.$(Cluster).$(Process).txt"
 
-getenv = True
+#getenv = True
 
 executable          =  run.sh
 arguments           = "$(Process)"
@@ -45,4 +45,4 @@ log                 = logs/$(Process).log
 #
 #
 ##########################
-queue 1000
+queue 600

@@ -1,0 +1,21 @@
+#. /cvmfs/sft.cern.ch/lcg/releases/LCG_88/gcc/6.2.0/x86_64-slc6/setup.sh
+#. /cvmfs/sft.cern.ch/lcg/releases/LCG_93a/Python/2.7.13/x86_64-slc6-gcc62-opt/Python-env.sh
+
+
+source /cvmfs/sft.cern.ch/lcg/releases/LCG_85/gcc/4.9.3/x86_64-slc6/setup.sh
+source /cvmfs/sft.cern.ch/lcg/releases/LCG_85/Python/2.7.10/x86_64-slc6-gcc49-opt/Python-env.sh
+
+source /cvmfs/sft.cern.ch/lcg/releases/LCG_88/ROOT/6.08.06/x86_64-slc6-gcc49-opt/bin/thisroot.sh
+
+
+#. /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/rivet/2.5.3/x86_64-slc6-gcc62-opt/rivetenv.sh
+source /cvmfs/sft.cern.ch/lcg/releases/LCG_85/MCGenerators/rivet/2.5.3/x86_64-slc6-gcc49-opt/rivetenv.sh
+
+export  PYTHIA8DATA=/cvmfs/sft.cern.ch/lcg/views/LCG_88/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc
+
+export PATH=/cvmfs/sft.cern.ch/lcg/releases/LCG_85/MCGenerators/yoda/1.6.6/x86_64-slc6-gcc49-opt/bin:$PATH
+
+#export  PYTHIA8DATA=/cvmfs/sft.cern.ch/lcg/views/LCG_93a/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc
+
+#export  PYTHIA8DATA=/nfs/dust/cms/user/zlebcr/powheg/armando/pythia/pythiaLocal/share/Pythia8/xmldoc
+#export  PYTHIA8DATA=/cvmfs/sft.cern.ch/lcg/views/LCG_88/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc

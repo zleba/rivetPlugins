@@ -5,14 +5,15 @@ cd $TMP
 echo $PWD
 
 
-name=bjetsDeltaHL
+name=bjetsNew
 
-source $address/setup62.sh
+source $address/setup49.sh
 fifo="hepmc${1}.fifo"
 mkfifo $fifo
 
 cp $address/Rivet${name}.so .
 cp  $address/main41 .
+cp  $address/main41.cmnd .
 
 ./main41 $fifo $1  &
 rivet --pwd -a $name $fifo

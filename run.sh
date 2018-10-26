@@ -1,7 +1,8 @@
 #!/bin/bash
 
-
-fifo="hepmc.fifo"
+mkdir -p /tmp/zlebcr/
+fifo="/tmp/zlebcr/hepmc.fifo"
+rm -f  $fifo
 mkfifo $fifo
 
 ./main41 $fifo 10 &

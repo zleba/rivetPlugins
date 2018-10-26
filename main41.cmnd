@@ -5,7 +5,7 @@
 ! The settings here are illustrative, not always physics-motivated.
 
 ! 1) Settings used in the main program.
-Main:numberOfEvents = 1000         ! number of events to generate
+Main:numberOfEvents = 15000        ! number of events to generate
 Main:timesAllowErrors = 3          ! how many aborts before run stops
 
 ! 2) Settings related to output in init(), next() and stat().
@@ -19,14 +19,14 @@ Next:numberShowEvent = 0           ! print event record n times
 ! 3) Beam parameter settings. Values below agree with default ones.
 Beams:idA = 2212                   ! first beam, p = 2212, pbar = -2212
 Beams:idB = 2212                   ! second beam, p = 2212, pbar = -2212
-Beams:eCM = 14000.                 ! CM energy of collision
+Beams:eCM = 13000.                 ! CM energy of collision
 
 ! 4) Settings for the hard-process generation.
 
 ! Example 1: QCD + prompt photon production; must set pTmin.
-HardQCD:all = on                   ! switch on all QCD jet + jet processes
+#HardQCD:all = on                   ! switch on all QCD jet + jet processes
 #PromptPhoton:all = on              ! swich on gamma + jet and gamma + gamma
-PhaseSpace:pTHatMin = 300.          ! minimal pT scale in process
+#PhaseSpace:pTHatMin = 300.          ! minimal pT scale in process
 
 ! Example 2: t-tbar production.
 #Top:gg2ttbar = on                  ! g g -> t tbar
@@ -34,7 +34,13 @@ PhaseSpace:pTHatMin = 300.          ! minimal pT scale in process
 
 ! Example 3: Z0 production; should set mMin.
 #WeakSingleBoson:ffbar2gmZ = on     ! q qbar -> gamma*/Z0
-#PhaseSpace:mHatMin = 50.
+#WeakZ0:gmZmode            = 1     ! q qbar -> gamma*/Z0
+#PhaseSpace:mHatMin = 20.
+#PhaseSpace:mHatMax = 40.
+
+!Higgs
+HiggsSM:gg2H = on
+
 
 ! Example 4: gauge boson pair production; set pTmin. Not yet complete.
 #WeakDoubleBoson:ffbar2ZW = on      ! q qbar -> Z0 W+-
@@ -42,20 +48,24 @@ PhaseSpace:pTHatMin = 300.          ! minimal pT scale in process
 #PhaseSpace:pTHatMin = 20.          ! minimal pT scale in process
 
 ! 5) Switch on/off the key event generation steps.
+#PartonLevel:all = off
+HadronLevel:all = off
 PartonLevel:MPI = off              ! no multiparton interactions
-#PartonLevel:ISR = off              ! no initial-state radiation
-#PartonLevel:FSR = off              ! no final-state radiation
+PartonLevel:ISR = off              ! no initial-state radiation
+PartonLevel:FSR = off              ! no final-state radiation
 #HadronLevel:Hadronize = off        ! no hadronization
 #HadronLevel:Decay = off            ! no decays
 
 ! 6) Other settings. Can be expanded as desired.
 #Tune:preferLHAPDF = off            ! use internal PDFs when LHAPDF not linked
-Tune:pp = 6                        ! use Tune 4Cx
+#Tune:pp = 8                        ! use Tune 4Cx
+#PDF:pSet = LHAPDF6:NNPDF31_nlo_as_0118 !.tar.gz  MRST2008lomod
+PDF:pSet = LHAPDF6:MRST2004qed_proton
 ParticleDecays:limitTau0 = on      ! set long-lived particle stable ...
 ParticleDecays:tau0Max = 10        ! ... if c*tau0 > 10 mm
 
 
 
-PhaseSpace:bias2Selection = on
-PhaseSpace:bias2SelectionPow = 5
+#PhaseSpace:bias2Selection = on
+#PhaseSpace:bias2SelectionPow = 5
 

@@ -34,42 +34,16 @@ int main(int argc, char **argv) {
   // Generator. Process selection. LHC initialization. Histogram.
   Pythia pythia;
   pythia.readFile("main41.cmnd");
-  //pythia.readString("Beams:eCM = 14000.");
-  //pythia.readString("PDF:pSet = LHAPDF5:NNPDF31_lo_as_0130");
+  int nEvent = pythia.settings.mode("Main:numberOfEvents");
   pythia.readString("Random:setSeed = on");
   pythia.readString("Random:seed = 1"+string(argv[2]));
 
-  //pythia.readString("HardQCD:all = on");
-  //pythia.readString("PhaseSpace:pTHatMin = 100.");
-  //pythia.readString("PhaseSpace:bias2Selection = on");
-  //pythia.readString("PhaseSpace:bias2SelectionPow = 5");
-  //pythia.readString("PartonLevel:MPI = off");
-  //pythia.readString("UncertaintyBands:doVariations = on");
-  //pythia.readString("UncertaintyBands:List = { alphaShi fsr:muRfac=0.5 isr:muRfac=0.5, alphaSlo fsr:muRfac=2.0 isr:muRfac=2.0, hardHi fsr:cNS=2.0 isr:cNS=2.0, hardLo fsr:cNS=-2.0 isr:cNS=-2.0 }");
-
   pythia.init();
-  //Hist mult("charged multiplicity", 100, -0.5, 799.5);
 
   // Begin event loop. Generate event. Skip if error.
-  for (int iEvent = 0; iEvent < 35000; ++iEvent) {
+  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
     if (!pythia.next()) continue;
 
-    //for(int i = 0; i <  pythia.info.nWeights(); ++i)
-        //cout <<"w  "<<i<<" "<< setprecision(10) << pythia.info.weight(i) << endl;
-
-    //continue;
-    // Find number of all final charged particles and fill histogram.
-    /*
-    int nCharged = 0;
-    for (int i = 0; i < pythia.event.size(); ++i)
-      if (pythia.event[i].isFinal() && pythia.event[i].isCharged())
-        ++nCharged;
-    */
-    //mult.fill( nCharged );
-
-    // Construct new empty HepMC event and fill it.
-    // Units will be as chosen for HepMC build; but can be changed
-    // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)
     HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
     ToHepMC.fill_next_event( pythia, hepmcevt );
 
@@ -80,7 +54,6 @@ int main(int argc, char **argv) {
   // End of event loop. Statistics. Histogram.
   }
   pythia.stat();
-  //cout << mult;
 
   // Done.
   return 0;

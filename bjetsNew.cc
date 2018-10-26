@@ -109,7 +109,6 @@ double isbTagged(double pT, bool isB, bool isC)
 
     if(isB) {
         w = 0.5;
-
     }
     else if(isC) {
         w = 0.1;
@@ -150,6 +149,7 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
 
 }
 
+    int nSys = 7;
 
 
 
@@ -222,7 +222,6 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
 
                 std::vector<string> flavType = {"", "b", "bb"};
 
-                int nSys = 7;
                 _hist_AK4pT.resize(flavType.size());
                 _hist_AK8pT.resize(flavType.size());
                 _hist_AK4DeltaPhi.resize(flavType.size());
@@ -267,7 +266,6 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
                     }
                 }
 
-
             }
 
 
@@ -287,6 +285,7 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
                 //Inclusive 
                 _hist_pT[0]->fill(pt1, weight);
                 _hist_DeltaPhi[0].fill(pt1, dPhi, weight);
+                //cout << "Filling delta " << pt1 <<" "<< dPhi << endl;
 
                 //Both B 
                 if(jet1.bTagged() && jet2.bTagged()) {
@@ -312,17 +311,25 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
 
                 auto jet1 = jets[0];
                 auto jet2 = jets[1];
-
                 double pt1 = jet1.momentum().pT();
                 double pt2 = jet2.momentum().pT();
+
+                double pt1Org = jet1.momentum().pT();
+                double pt2Org = jet2.momentum().pT();
+                double dPhi    = deltaPhi(jet1, jet2);
                 
+                bool isB1 = jet1.bTagged(), isC1 = jet1.cTagged();
+                bool isB2 = jet2.bTagged(), isC2 = jet2.cTagged();
 
-                bool isB1 =  isbTagged(pt1, jet1.bTagged(), jet1.cTagged());
-                bool isB2 =  isbTagged(pt2, jet2.bTagged(), jet2.cTagged());
+                bool isTag1 =  isbTagged(pt1, isB1, isC1);
+                bool isTag2 =  isbTagged(pt2, isB2, isC2);
 
 
-                for(int sys = 0; sys < 7; ++sys) {
+                for(int sys = 0; sys < nSys; ++sys) {
                     int shH = 0, shL = 0;
+                    double pt1 = pt1Org;
+                    double pt2 = pt2Org;
+
                     if(sys == 1) {
                         shH = 1;
                         shL = 0;
@@ -347,34 +354,31 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
                         pt1 *= 0.99;
                         pt2 *= 0.99;
                     }
+                    //cout << "sys " << sys << endl;
 
-                    double dPhi    = deltaPhi(jet1, jet2);
+                    double sf1 = bTaggSF(pt1, isB1, isC1, shH, shL);
+                    double sf2 = bTaggSF(pt2, isB2, isC2, shH, shL);
 
                     //Inclusive 
-                    _hist_pT[sys][0]->fill(pt1, weight);
-                    _hist_DeltaPhi[sys][0].fill(pt1, dPhi, weight);
+                    _hist_pT[0][sys]->fill(pt1, weight);
+                    _hist_DeltaPhi[0][sys].fill(pt1, dPhi, weight);
 
                     //Both B 
-                    if(isB1 && isB2) {
-
-                        double w1 = bTaggSF(pt1, jet1.bTagged(), jet1.cTagged(), shH, shL);
-                        double w2 = bTaggSF(pt2, jet2.bTagged(), jet2.cTagged(), shH, shL);
-
-                        _hist_pT[sys][2]->fill(pt1, weight*w1*w2);
-                        _hist_DeltaPhi[sys][2].fill(pt1, dPhi, weight*w1*w2);
+                    if(isTag1 && isTag2) {
+                        _hist_pT[2][sys]->fill(pt1, weight*sf1*sf2);
+                        _hist_DeltaPhi[2][sys].fill(pt1, dPhi, weight*sf1*sf2);
                     }
-                    if(isB1 || isB2) {
-                        double wB = 1;
-                        if(isB1) {
-                            wB = bTaggSF(pt1, jet1.bTagged(), jet1.cTagged(), shH, shL);
-                            _hist_pT[sys][1]->fill(pt1, weight*wB);
+                    if(isTag1 || isTag2) {
+                        double sf = 1;
+                        if(isTag1) {
+                            sf = sf1;
+                            _hist_pT[1][sys]->fill(pt1, weight*sf);
                         }
                         else {
-                            wB = bTaggSF(pt2, jet2.bTagged(), jet2.cTagged(), shH, shL);
-                            _hist_pT[sys][1]->fill(pt2, weight);
+                            sf = sf2;
+                            _hist_pT[1][sys]->fill(pt2, weight*sf);
                         }
-
-                        _hist_DeltaPhi[sys][1].fill(pt1, dPhi, weight*wB);
+                        _hist_DeltaPhi[1][sys].fill(pt1, dPhi, weight*sf);
                     }
 
                 }
@@ -385,6 +389,11 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
 
             // Analysis
             void analyze(const Event &event) {
+
+
+                auto particles  = event.allParticles();
+                //for(int i = 0; i < particles.size(); ++i) {
+                cout << particles[2].pid() <<" "<< particles[3].pid() << endl;
 
                 const double weight = event.weight();      
                 const FastJets &fjAK4 = applyProjection<FastJets>(event,"JetsAK4");
@@ -404,7 +413,6 @@ double bTaggSF(double pT, bool isB, bool isC, int shH, int shL)
 
             // Finalize
             void finalize() {
-                cout<<"cross Section: "<<crossSection()<<endl;
 
                 double factor = crossSection()/sumOfWeights();
 

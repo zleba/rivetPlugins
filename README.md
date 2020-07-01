@@ -4,8 +4,8 @@ Simple setup for machine with cvmfs mounted (e.g. DESY naf or CERN lxplus):
 ```
 git clone git@github.com:zleba/rivetPlugins.git
 cd rivetPlugins
-. ./setup62.sh
-make main41 RivetbjetsDeltaHL.so
+. ./setup7.sh
+make main41 
 ```
 
 Then run the test localy using:
